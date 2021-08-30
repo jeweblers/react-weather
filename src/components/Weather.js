@@ -1,35 +1,30 @@
-import { Box } from '@material-ui/core'
+import { Grid } from '@material-ui/core'
 import { formatDate } from '../utils/date'
-import OpenWeather from '../api/OpenWeather'
-import { useEffect, useState } from 'react'
 import { getWeatherIcon } from '../utils/icon'
 
-const Weather = (props) => {
-  const [weather, setWeather] = useState()
-  const { city, date } = props
-
-  const getWeather = () => {
-    if (city) {
-      OpenWeather.getWeatherById(city.id).then(response => {
-        setWeather(response.data.weather[0])
-      })
-    }
-  }
-
-  useEffect(() => {
-    getWeather()
-  })
-
+const Weather = (
+  { icon, date, temperature, weather, humidity, windSpeed },
+) => {
   return (
-    <Box>
-      <p>{formatDate(date)}</p>
-      {
-        weather && weather.icon &&
-        (
-          <img src={getWeatherIcon(weather.icon)} alt={''}/>
-        )
-      }
-    </Box>
+    <Grid container className="weather">
+      <Grid item xs={12} className="weather__date">{formatDate(date)}</Grid>
+      <Grid item xs={12} className="weather__temperature">
+        {icon ? <img src={getWeatherIcon(icon)} alt={''}/> : ''}
+        <p>{temperature}</p>
+      </Grid>
+      <Grid item xs={12} className='weather__state'>{weather}</Grid>
+
+      <Grid container>
+        <Grid item sm={6}>
+          <p>Humidity</p>
+          <p className='text-bold'>{humidity}</p>
+        </Grid>
+        <Grid item sm={6}>
+          <p>Wind speed</p>
+          <p className='text-bold'>{windSpeed}</p>
+        </Grid>
+      </Grid>
+    </Grid>
   )
 }
 

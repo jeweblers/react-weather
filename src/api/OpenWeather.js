@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+const useCache = process.env.REACT_APP_CACHE
+
 function buildUrl (slug, params) {
   let url = process.env.REACT_APP_WEATHER_API + '/' + slug
 
@@ -14,22 +16,36 @@ function buildUrl (slug, params) {
   return url
 }
 
-const OpenWeather = {
-  getWeatherById (cityId) {
-    const url = buildUrl('weather', { id: cityId })
-    const weather = localStorage.getItem(url)
+function makeRequest (url, cache = true) {
+  if (cache) {
+    const data = localStorage.getItem(url)
 
-    if (weather) {
+    if (data) {
       return new Promise(resolve => resolve({
-        data: JSON.parse(weather),
+        data: JSON.parse(data)
       }))
     }
 
     return axios.get(url).then(response => {
-      localStorage.setItem(url, JSON.stringify(response.data))
+      if (cache) {
+        localStorage.setItem(url, JSON.stringify(response.data))
+      }
 
       return response
     })
+  }
+}
+
+const OpenWeather = {
+  getWeatherById (cityId) {
+    const url = buildUrl('weather', { id: cityId })
+
+    return makeRequest(url, useCache)
+  },
+  getForecastHourly (cityId) {
+    const url = buildUrl('forecast', { id: cityId })
+
+    return makeRequest(url, useCache)
   },
 }
 
